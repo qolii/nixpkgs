@@ -13588,6 +13588,14 @@ with pkgs;
     ];
   };
 
+  #####
+  linux_hardkernel = callPackages ../os-specific/linux/kernel/linux-hardkernel.nix {
+     kernelPatches = [
+      kernelPatches.bridge_stp_helper
+      kernelPatches.modinst_arg_list_too_long
+    ];
+  };
+
   linux_samus_4_12 = callPackage ../os-specific/linux/kernel/linux-samus-4.12.nix {
     kernelPatches =
       [ kernelPatches.bridge_stp_helper
@@ -13816,6 +13824,9 @@ with pkgs;
 
   linuxPackages_copperhead_lts = recurseIntoAttrs (hardenedLinuxPackagesFor pkgs.linux_copperhead_lts);
   linuxPackages_copperhead_stable = recurseIntoAttrs (hardenedLinuxPackagesFor pkgs.linux_copperhead_stable);
+
+  #####
+  linuxPackages_hardkernel = recurseIntoAttrs (linuxPackagesFor pkgs.linux_hardkernel);
 
   # Samus kernels
   linuxPackages_samus_4_12 = recurseIntoAttrs (linuxPackagesFor pkgs.linux_samus_4_12);
