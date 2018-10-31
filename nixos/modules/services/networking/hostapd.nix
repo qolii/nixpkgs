@@ -19,6 +19,8 @@ let
     hw_mode=${AP.hwMode}
     channel=${toString AP.channel}
 
+    ${optionalString (AP.bridge != null) "bridge=${AP.bridge}"}
+
     # logging (debug level)
     logger_syslog=-1
     logger_syslog_level=2
@@ -42,8 +44,8 @@ let
     path = [ pkgs.hostapd ];
     wantedBy = [ "network.target" ];
 
-    after = [ "sys-subsystem-net-devices-${AP.interface}.device" "${AP.interface}-cfg.service" "nat.service" "bind.service" "dhcpd.service" ];
-    bindsTo = [ "sys-subsystem-net-devices-${AP.interface}.device" ];
+    after   = [ "sys-subsystem-net-devices-${AP.interface}.device" (optionalString (AP.bridge != null) "sys-subsystem-net-devices-${AP.bridge}.device") ];
+    bindsTo = [ "sys-subsystem-net-devices-${AP.interface}.device" (optionalString (AP.bridge != null) "sys-subsystem-net-devices-${AP.bridge}.device") ];
 
     serviceConfig = {
       ExecStart = "${pkgs.hostapd}/bin/hostapd ${generateConfigFile AP}";
@@ -91,6 +93,15 @@ in
               example = "wlp2s0";
               description = ''
                 The interfaces <command>hostapd</command> will use.
+              '';
+            };
+
+            bridge = mkOption {
+              default = null;
+              type = types.nullOr types.str;
+              example = "br0";
+              description = ''
+                The (optional) name of the bridge to add this AP to.
               '';
             };
 
